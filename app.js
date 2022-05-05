@@ -1,5 +1,5 @@
-const fs = require('fs');
-const generatePage = require('./src/page-template');
+const { writeFile, copyFile } = require('./utils/generate-site.js');
+const generatePage = require("./src/page-template");
 const inquirer = require("inquirer");
 
 const promptUser = () => {
@@ -8,46 +8,47 @@ const promptUser = () => {
       type: "input",
       name: "name",
       message: "What is your name?",
-      validate: nameInput => {
+      validate: (nameInput) => {
         if (nameInput) {
           return true;
         } else {
-          console.log('Please enter your name! (Required)');
+          console.log("Please enter your name! (Required)");
           return false;
         }
-      }
+      },
     },
     {
       type: "input",
       name: "github",
       message: "Enter your GitHub Username",
-      validate: nameInput => {
+      validate: (nameInput) => {
         if (nameInput) {
           return true;
         } else {
-          console.log('Please enter your GitHub Username! (Required)');
+          console.log("Please enter your GitHub Username! (Required)");
           return false;
         }
-      }
+      },
     },
     {
-      type: 'confirm',
-      name: 'confirmAbout',
-      message: 'Would you like to enter some information about yourself for an "About" section?',
-      default: true
+      type: "confirm",
+      name: "confirmAbout",
+      message:
+        'Would you like to enter some information about yourself for an "About" section?',
+      default: true,
     },
     {
-      type: 'input',
-      name: 'about',
-      message: 'Provide some information about yourself:',
+      type: "input",
+      name: "about",
+      message: "Provide some information about yourself:",
       when: ({ confirmAbout }) => {
         if (confirmAbout) {
           return true;
         } else {
           return false;
         }
-      }
-    }
+      },
+    },
   ]);
 };
 
@@ -67,27 +68,27 @@ Add a New Project
         type: "input",
         name: "name",
         message: "What is the name of your project?",
-        validate: nameInput => {
+        validate: (nameInput) => {
           if (nameInput) {
             return true;
           } else {
-            console.log('Please enter a project name! (Required)');
+            console.log("Please enter a project name! (Required)");
             return false;
           }
-        }
+        },
       },
       {
         type: "input",
         name: "description",
         message: "Provide a description of the project (Required)",
-        validate: nameInput => {
+        validate: (nameInput) => {
           if (nameInput) {
             return true;
           } else {
-            console.log('Please enter a project description! (Required)');
+            console.log("Please enter a project description! (Required)");
             return false;
           }
-        }
+        },
       },
       {
         type: "checkbox",
@@ -107,14 +108,14 @@ Add a New Project
         type: "input",
         name: "link",
         message: "Enter the GitHub link to your project. (Required)",
-        validate: nameInput => {
+        validate: (nameInput) => {
           if (nameInput) {
             return true;
           } else {
-            console.log('Please enter a link to your GitHub! (Required)');
+            console.log("Please enter a link to your GitHub! (Required)");
             return false;
           }
-        }
+        },
       },
       {
         type: "confirm",
@@ -141,13 +142,18 @@ Add a New Project
 promptUser()
   .then(promptProject)
   .then(portfolioData => {
-    const pageHTML = generatePage(portfolioData);
-
-    fs.writeFile('./index.html', pageHTML, err => {
-      if (err) throw new Error(err);
-
-      console.log('Page created! Check out index.html in this directory to see it!');
-      console.log(portfolioData);
-    });
+    return generatePage(portfolioData);
+  })
+  .then(pageHTML => {
+    return writeFile(pageHTML);
+  })
+  .then(writeFileResponse => {
+    console.log(writeFileResponse);
+    return copyFile();
+  })
+  .then(copyFileResponse => {
+    console.log(copyFileResponse);
+  })
+  .catch(err => {
+    console.log(err);
   });
-
